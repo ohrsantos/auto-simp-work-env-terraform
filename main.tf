@@ -7,7 +7,7 @@
 #OHRS_PROFILE_VERSION="0.01a"
 #AUTHOR="Orlando Hehl Rebelo dos Santos"
 #DATE_INI="03-03-2019"
-#DATE_END="03-03-2019"
+#DATE_END="04-03-2019"
 #######################################################################################################################
 # For auto-simp security dev env
 
@@ -44,7 +44,7 @@ variable "am_key_pairs" {
 
 
 # todo: review sg
-resource "aws_security_group" "" {
+resource "aws_security_group" "ssh" {
     name = "allow_ssh"
     description = "Allow SSH connections"
         ingress {
@@ -62,13 +62,16 @@ resource "aws_security_group" "" {
         }
 }
 
-resource "aws_instance" "pub-jump-box-auto-simp" { 
+resource "aws_instance" "tst-box-auto-simp" { 
     ami = "${lookup(var.am_images, var.region)}"
-    instance_type = "t2.small"
+    instance_type = "t2.micro"
     key_name      =  "${lookup(var.am_key_pairs, var.region)}"
-    vpc_security_group_ids = ["${aws_security_group.ssh.id}"]
+    subnet_id = "subnet-0385a4eed45a9b114"
+    vpc_security_group_ids = ["sg-0c0ab940e6ce3df92"]
+    associate_public_ip_address = "True"
+    #vpc_security_group_ids = ["${aws_security_group.ssh.id}"]
     tags {
-        Name = "pub-jump-box-auto-simp"
+        Name = "tst-box-auto-simp"
     }
 
     provisioner "remote-exec" {
@@ -76,8 +79,8 @@ resource "aws_instance" "pub-jump-box-auto-simp" {
             "hostname",
             "ip addr",
             "sudo ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime",
-            "echo \"pub-jump-box-auto-simp\" > /etc/hostname",
-            "echo \"127.0.0.1 pub-jump-box-auto-simp\" >> /etc/hosts",
+            "echo \"tst-box-auto-simp\" > /etc/hostname",
+            "echo \"127.0.0.1 tst-box-auto-simp\" >> /etc/hosts",
             "cd ~",
             "git clone https://github.com/ohrsantos/ohrs-setup.git;cd ohrs-setup;./install.sh",
             "sudo bash -c echo 'ClientAliveInterval 120 >> /etc/ssh/sshd_config'",
