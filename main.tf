@@ -13,6 +13,10 @@
 
 variable "region" {}
 
+variable "instance_type" {
+    default ="t2.micro"
+}
+
 provider "aws" {
   region                  = "${var.region}"
   shared_credentials_file = "/home/ubuntu/.aws/credentials"
@@ -64,7 +68,7 @@ resource "aws_security_group" "ssh" {
 
 resource "aws_instance" "tst-box-auto-simp" { 
     ami = "${lookup(var.am_images, var.region)}"
-    instance_type = "t2.micro"
+    instance_type = "${var.instance_type}"
     key_name      =  "${lookup(var.am_key_pairs, var.region)}"
     subnet_id = "subnet-0385a4eed45a9b114"
     vpc_security_group_ids = ["sg-0c0ab940e6ce3df92"]
