@@ -4,47 +4,12 @@
 #######################################################################################################################
 #SCRIPT_NAME="main.tf"
 #######################################################################################################################
-#OHRS_PROFILE_VERSION="0.01a"
+#OHRS_PROFILE_VERSION="0.03a"
 #AUTHOR="Orlando Hehl Rebelo dos Santos"
 #DATE_INI="03-03-2019"
-#DATE_END="04-03-2019"
+#DATE_END="06-03-2019"
 #######################################################################################################################
 # For auto-simp security dev env
-
-variable "region" {}
-
-variable "instance_type" {
-    default ="t2.micro"
-}
-
-provider "aws" {
-  region                  = "${var.region}"
-  shared_credentials_file = "/home/ubuntu/.aws/credentials"
-  profile                 = "motherfucker1"
-}
-
-
-variable "am_images" {
-  type = "map"
-
-  default = {
-    "sa-east-1" = "ami-0318cb6e2f90d688b"
-    "us-east-2" = "ami-0f65671a86f061fcd"
-    "us-west-1" = "ami-0ad16744583f21877"
-  }
-}
-
-variable "am_key_pairs" {
-  type = "map"
-
-  default = {
-    "sa-east-1" = "ohrs-sa-east-1-kp"
-    "us-east-1" = "ohrs-us-east-1-kp"
-    "us-east-2" = "ohrs-us-east-2-kp"
-    "us-west-1" = "ohrs-us-west-1-kp"
-    "us-west-2" = "ohrs-us-west-2-kp"
-  }
-}
 
 
 # todo: review sg
@@ -83,18 +48,19 @@ resource "aws_instance" "tst-box-auto-simp" {
             "hostname",
             "ip addr",
             "sudo ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime",
-            "echo \"tst-box-auto-simp\" > /etc/hostname",
-            "echo \"127.0.0.1 tst-box-auto-simp\" >> /etc/hosts",
+            "sudo bash -c \"echo tst-box-auto-simp > /etc/hostname\"",
+            "sudo bash -c \"echo 127.0.0.1 tst-box-auto-simp >> /etc/hosts\"",
             "cd ~",
-            "git clone https://github.com/ohrsantos/ohrs-setup.git;cd ohrs-setup;./install.sh",
-            "sudo bash -c echo 'ClientAliveInterval 120 >> /etc/ssh/sshd_config'",
-            "sudo bash -c echo 'ClientAliveCountMax 720 >> /etc/ssh/sshd_config'"
+            #"git clone https://github.com/ohrsantos/ohrs-setup.git;cd ohrs-setup;./install.sh",
+            "sudo bash -c 'echo ClientAliveInterval 120 >> /etc/ssh/sshd_config'",
+            "sudo bash -c 'echo ClientAliveCountMax 720 >> /etc/ssh/sshd_config'",
+            "sudo bash -c 'sleep 10; reboot'"
        ]
     }   
         connection {
              type     = "ssh"
              user     = "ubuntu"
-             private_key = "${file("/home/a1/.aws/ohrs-sa-east-1-kp.pem")}"
+             private_key = "${file("/home/ubuntu/.aws/ohrs-sa-east-1-kp.pem")}"
        }
 
 
